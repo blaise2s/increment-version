@@ -1,0 +1,40 @@
+name: Increment Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionNumber:
+        type: string
+        required: true
+      bump:
+        description: Number within the version to bump.
+        type: choice
+        required: true
+        default: minor
+        options:
+          - major
+          - minor
+          - patch
+      prefix:
+        description: Prepended to the version.
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  increment-latest-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Increment version ${{ steps.getLatestRelease.outputs.latestRelease }}
+        id: incrementVersion
+        uses: ./
+        with:
+          versionNumber: ${{ inputs.versionNumber }}
+          bump: ${{ inputs.bump }}
+          prefix: ${{ inputs.prefix }}
+
+      - name: The next version is ${{ steps.incrementVersion.outputs.nextVersion }}
+        run: echo "${{ steps.incrementVersion.outputs.nextVersion }}"
